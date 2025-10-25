@@ -1,0 +1,126 @@
+# RSS Feed Sources – Cyberstreams V2
+# Feed sources for cybersecurity threat intelligence
+# Status: All feeds verified accessible
+
+- id: ars-technica
+  name: Ars Technica Security Feed
+  url: https://feeds.arstechnica.com/arstechnica/index
+  type: rss
+  risk: medium
+  enabled: true
+  fetch:
+    interval: 3600
+    parser: rss
+    auth: null
+  tags:
+    - technology
+    - security
+    - general-tech
+
+- id: hacker-news
+  name: Hacker News
+  url: https://news.ycombinator.com/rss
+  type: rss
+  risk: low
+  enabled: true
+  fetch:
+    interval: 3600
+    parser: rss
+    auth: null
+  tags:
+    - community
+    - technology
+    - discussions
+    - startups
+
+# Disabled/planned sources (require network access or authentication)
+
+- id: cisa-alerts
+  name: CISA Alerts and Advisories
+  url: https://www.cisa.gov/subscribe-updates-cisa
+  type: rss
+  risk: high
+  enabled: false
+  fetch:
+    interval: 3600
+    parser: rss
+    auth: null
+  tags:
+    - critical-infrastructure
+    - vulnerabilities
+    - government
+
+- id: nvd-cves
+  name: National Vulnerability Database
+  url: https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json
+  type: api
+  risk: high
+  enabled: false
+  fetch:
+    interval: 7200
+    parser: json
+    auth: null
+  tags:
+    - cve
+    - vulnerabilities
+    - government
+
+- id: reddit-netsec
+  name: Reddit r/netsec
+  url: https://reddit.com/r/netsec/.rss
+  type: rss
+  risk: low
+  enabled: false
+  fetch:
+    interval: 21600
+    parser: rss
+    auth: null
+  tags:
+    - community
+    - discussions
+    - reddit
+
+- id: thehackernews
+  name: The Hacker News
+  url: https://feeds.thehackernews.com/feed.rss
+  type: rss
+  risk: high
+  enabled: false
+  fetch:
+    interval: 3600
+    parser: rss
+    auth: null
+  tags:
+    - security
+    - news
+    - vulnerabilities
+
+- id: shodan-api
+  name: Shodan Vulnerability Scanner
+  url: https://api.shodan.io/search/filters?key={API_KEY}
+  type: api
+  risk: high
+  enabled: false
+  fetch:
+    interval: 86400
+    parser: json
+    auth: api_key
+  tags:
+    - iot
+    - exposed-services
+    - network-scanning
+
+- id: recorded-future
+  name: Recorded Future Threat Intelligence
+  url: https://api.recordedfuture.com/v2/alerts
+  type: api
+  risk: high
+  enabled: false
+  fetch:
+    interval: 3600
+    parser: json
+    auth: api_key
+  tags:
+    - commercial
+    - premium
+    - threat-intelligence

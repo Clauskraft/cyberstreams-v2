@@ -1,0 +1,181 @@
+{
+  "type": "cursor.project.rules",
+  "version": 1,
+  "rules": [
+    {
+      "name": "Architecture Convention",
+      "scope": "project",
+      "text": "Følg modular layout: apps/api, apps/worker, apps/darkweb-connector, data/Cyberfeeds, infra/opensearch, scripts/*, .cursor/*. Ny kode skal passe ind i denne struktur. Hold single responsibility per modul."
+    },
+    {
+      "name": "Deployment Convention",
+      "scope": "project",
+      "text": "Deploy kun via Railway eller CI defineret i .github/workflows/release.yml. Hver service skal eksponere /api/v1/health. Brug Makefile targets (make mvp, make release) som canonical flow."
+    },
+    {
+      "name": "Audit Flow",
+      "scope": "project",
+      "text": "Før release kør: npm run audit:sources, npm run audit:contract, npm run audit:score. Fejl fra audit er blockers. Gem audit-output som artefakt i CI."
+    },
+    {
+      "name": "Release Flow",
+      "scope": "project",
+      "text": "Versionering er semantisk. Brug scripts/release/version-bump.sh og scripts/release/changelog.sh. Opret git-tag v<version> og push tags for at trigge release workflow."
+    },
+    {
+      "name": "CI Integration",
+      "scope": "project",
+      "text": "CI lever i .github/workflows/release.yml. Nye workflows må kun føjes hvis CI/Release agent og docs er opdateret. CI skal indeholde gates for contract-tests og smoke-tests."
+    },
+    {
+      "name": "Environment Management",
+      "scope": "project",
+      "text": "Ingen secrets i kode. Alle credentials i Railway secrets eller GitHub Secrets. Kendte variabler: OPENSEARCH_URL, OPENSEARCH_USERNAME, OPENSEARCH_PASSWORD, MINIO_*, RAILWAY_TOKEN, RAILWAY_API_SERVICE, RAILWAY_WORKER_SERVICE, OLLAMA_API_KEY, TOR_BRIDGES, TOR_CONTROL_PASS."
+    },
+    {
+      "name": "AI Agent Policy",
+      "scope": "project",
+      "text": "Cursor-agenter skal indlæse .cursor/context.md. Agenter må kun ændre godkendte kataloger (apps/, infra/, data/) og skal respektere acceptance-krav i agentfiler. Brug Make targets fremfor ad-hoc scripts."
+    },
+    {
+      "name": "Code Ownership",
+      "scope": "project",
+      "text": "Primær maintainer: Claus Westergaard Kraft. Alle automatiske PR'er skal kræve review før merge. Ændringer af security- eller ingestion-kode kræver 2 approvers."
+    },
+    {
+      "name": "Language Policy",
+      "scope": "project",
+      "text": "Kode-kommentarer og commits på engelsk. Dokumentation og README på dansk med korte engelske resuméer hvor relevant."
+    },
+    {
+      "name": "Makefile Authority",
+      "scope": "project",
+      "text": "Makefile er source-of-truth for build/deploy/verify. Brug make mvp og make release. Agenter må ikke omgå disse targets."
+    },
+    {
+      "name": "Service Naming",
+      "scope": "project",
+      "text": "Railway services navngives: cyberstreams-api, cyberstreams-worker, cyberstreams-darkweb. Hvis service mangler: railway up --service <name> --path <dir>."
+    },
+    {
+      "name": "API Contract",
+      "scope": "project",
+      "text": "packages/contracts/openapi.yaml er autoritativ. Implementerede endpoints skal matche OpenAPI. Kontraktafvigelser skal have ADR og testes i contract-coverage."
+    },
+    {
+      "name": "Observability",
+      "scope": "project",
+      "text": "Alle services logger JSON til stdout. Medtag trace_id/request_id, latency_ms og downstream-status. Eksporter metrics via OpenTelemetry til Grafana. Health endpoint skal være dependency-light."
+    },
+    {
+      "name": "Data Classification & Retention",
+      "scope": "project",
+      "text": "Klassificer data ved indtag: public, internal, sensitive, pii. Default hot-retention 90 dage. Flyt til searchable snapshots eller delete i ILM efter 90 dage. Dokumentér retention i docs/retention.md."
+    },
+    {
+      "name": "Source Declaration",
+      "scope": "project",
+      "text": "Alle kilder skal deklareres i data/Cyberfeeds/*.yaml. Skema skal indeholde: id, name, url, type, risk, enabled, fetch: {interval, parser, auth}. Risky kilder skal default være enabled:false."
+    },
+    {
+      "name": "Audit Logging for Fetchers",
+      "scope": "project",
+      "text": "Hver fetch skal emitte audit-post: source_id, url, timestamp, status_code, byte_count, sha256, circuit_id (for Tor), worker_id. Logs beholdes immutable i min. 180 dage."
+    },
+    {
+      "name": "Dark Web - Disabled by Default",
+      "scope": "project",
+      "text": "Alle .onion kilder er DISABLED som default i data/Cyberfeeds/darkweb.yaml. Aktivér kun efter juridisk godkendelse og dokumenteret DPIA. Aktiver via change request og audit trail."
+    },
+    {
+      "name": "Dark Web - Isolation & Network",
+      "scope": "project",
+      "text": "Darkweb-connector kører i isoleret service/container (apps/darkweb-connector). Al egress via lokal Tor SOCKS5. Ingen clearnet egress fra connector. Anvend seccomp, AppArmor/SELinux og resource caps."
+    },
+    {
+      "name": "Dark Web - Fetcher Stack",
+      "scope": "project",
+      "text": "Brug undici/got + socks-proxy-agent eller Tor system package. Undgå headless browsers i produktion. Implementér per-host rate limits, jitter og backoff. Rotate circuits via Tor control (NEWNYM) med begrænsning."
+    },
+    {
+      "name": "Dark Web - Sanitization & Quarantine",
+      "scope": "project",
+      "text": "Strip scripts, styles, forms, iframes. Gem raw HTML kun i MinIO bucket 'quarantine/' med SSE. Index kun sanitized tekst. Gem metadata og hash for hver raw-fil."
+    },
+    {
+      "name": "Dark Web - No Binary Downloads",
+      "scope": "project",
+      "text": "Ingen automatiske downloads af binære filer eller medier. Hvis fundet, gem kun metadata og quarantinér artefakt. Handl som potentiel bevismateriale og eskalér."
+    },
+    {
+      "name": "Dark Web - Legal & Compliance",
+      "scope": "project",
+      "text": "Al indhentning fra dark web kræver dokumenteret lawful basis. Dokumentér formål, scope, juridisk godkendelse og retention. Opsæt reviewer-flow for potentielt ulovligt indhold."
+    },
+    {
+      "name": "Dark Web - Secrets",
+      "scope": "project",
+      "text": "TOR_BRIDGES og TOR_CONTROL_PASS placeres i Railway secrets. Broer må aldrig committes. Bridges kan være obfs4 eller snowflake."
+    },
+    {
+      "name": "Dark Web - Incident Procedure",
+      "scope": "project",
+      "text": "Ved detektion af illegalt materiale: pause ingest for kilden, tag dokumentet 'review_required', notifér ejere og retshåndhævelse som angivet i runbook."
+    },
+    {
+      "name": "Social Platforms - General Policy",
+      "scope": "project",
+      "text": "Indhent kun offentligt tilgængeligt indhold eller indhold med udtrykkeligt samtykke. Respekter platform Terms of Service. Tokens og API-nøgler i Railway secrets. Do not scrape where API exists."
+    },
+    {
+      "name": "Telegram",
+      "scope": "project",
+      "text": "Brug Telegram Bot API eller MTProto via godkendte biblioteker. Indsaml kun fra offentlige kanaler eller kanaler med dokumenteret tilladelse. Ingen private beskeder. Metadata: channel_id, message_id, timestamp. Redact usernames medmindre nødvendigt."
+    },
+    {
+      "name": "Reddit",
+      "scope": "project",
+      "text": "Brug Reddit OAuth API. Undgå HTML-scraping. Indsaml kun godkendte subreddits. Implementér rate-limit håndtering og cache."
+    },
+    {
+      "name": "LinkedIn & Facebook",
+      "scope": "project",
+      "text": "Brug kun officielle Graph/Partner APIs. Ingen scraping. Indsaml kun organisationers sider/posts hvor adgang er givet. Forvent app review og compliance."
+    },
+    {
+      "name": "Snapchat",
+      "scope": "project",
+      "text": "Ingen scraping. Indhent data kun via officielle dataexporter eller direkte leverancer fra rettighedshavere. Dokumentér og godkend før indtag."
+    },
+    {
+      "name": "Other Sources & Vendors",
+      "scope": "project",
+      "text": "Foretræk vetted commerical feeds (Recorded Future, VirusTotal) og netværks-scanner APIs (Shodan, Censys). Brug disse før aktiv dark-web ingestion."
+    },
+    {
+      "name": "PII Detection & Redaction",
+      "scope": "project",
+      "text": "Kør PII-detektion ved indtag. Redact eller tokeniser PII før indeks hvis ikke nødvendigt for analysen. Implementér sletteflow for subject access requests."
+    },
+    {
+      "name": "Retention & Deletion",
+      "scope": "project",
+      "text": "Hot data: 90 dage. Warm/archives: søgbare snapshots. Raw quarantine: 180 dage. Automatisér ILM/cleanup. Dokumentér retention i docs/retention.md."
+    },
+    {
+      "name": "Testing & Staging",
+      "scope": "project",
+      "text": "Test darkweb-connector kun mod approved test-onion eller mirrored snapshots i staging. Ingen live dark-web targets i dev without approval."
+    },
+    {
+      "name": "Monitoring & Alerts",
+      "scope": "project",
+      "text": "Opsæt alerts for high error rate, unusual fetch volume, detection of illegal keywords, and circuit failures. Log metrics to Grafana and traces to OTel."
+    },
+    {
+      "name": "Documentation",
+      "scope": "project",
+      "text": "Dokumentér runbooks, legal approvals, DPIA, retention og dataflows i docs/ops/*.md. Include example data/Cyberfeeds/darkweb.yaml med enabled:false som skabelon."
+    }
+  ]
+}

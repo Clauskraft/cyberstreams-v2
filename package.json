@@ -1,0 +1,48 @@
+{
+  "name": "cyberstreams-v2",
+  "version": "0.1.0",
+  "description": "Cyberstreams V2 – Open-source cybersecurity intelligence platform with RSS feeds, dark web monitoring, and multi-source aggregation",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "install:all": "npm install && npm install -w apps/api && npm install -w apps/worker",
+    "audit:sources": "node scripts/audit/sources-lint.mjs",
+    "audit:contract": "node scripts/audit/contract-coverage.mjs",
+    "audit:score": "bash scripts/audit/scorecard.sh",
+    "build": "echo 'Build targets defined in individual services'",
+    "start:api": "cd apps/api && npm start",
+    "start:worker": "cd apps/worker && npm start",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:contract": "vitest run tests/contract",
+    "test:smoke": "vitest run tests/smoke",
+    "test:integration": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage",
+    "dev": "echo 'Development mode requires individual service startup'"
+  },
+  "workspaces": [
+    "apps/api",
+    "apps/worker"
+  ],
+  "keywords": [
+    "cybersecurity",
+    "intelligence",
+    "dark-web",
+    "rss-feeds",
+    "threat-intelligence",
+    "open-source"
+  ],
+  "author": "Claus Westergaard Kraft",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cyberstreams-v2.git"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.4",
+    "@vitest/coverage-v8": "^1.0.4"
+  }
+}

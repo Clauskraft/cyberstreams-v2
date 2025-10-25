@@ -1,0 +1,1 @@
+# Se CI/Release workflow og scripts i scripts/release/ samt README_FULL_PACKAGE.md

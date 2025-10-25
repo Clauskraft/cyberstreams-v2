@@ -1,0 +1,11 @@
+{
+  "add_to_package_json_scripts": {
+    "audit:score": "bash scripts/audit/scorecard.sh",
+    "audit:contract": "node scripts/audit/contract-coverage.mjs",
+    "audit:sources": "node scripts/audit/sources-lint.mjs"
+  },
+  "tooling_requirements": [
+    "jq",
+    "yq"
+  ]
+}

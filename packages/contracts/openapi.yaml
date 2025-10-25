@@ -1,0 +1,222 @@
+openapi: 3.0.0
+info:
+  title: Cyberstreams V2 API
+  description: Open-source cybersecurity intelligence platform API
+  version: 0.1.0
+  contact:
+    name: Claus Westergaard Kraft
+    email: clauskraft@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.cyberstreams.dev/api/v1
+    description: Production
+  - url: http://localhost:8080/api/v1
+    description: Development
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns service health status and dependencies
+      tags:
+        - System
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok, degraded, down]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                  dependencies:
+                    type: object
+                    properties:
+                      opensearch:
+                        type: string
+                        enum: [ok, degraded, down]
+                      minio:
+                        type: string
+                        enum: [ok, degraded, down]
+                required:
+                  - status
+
+  /search:
+    get:
+      summary: Search cyber threat intelligence
+      description: |
+        Search indexed documents from RSS feeds, dark web, and other sources.
+        Supports full-text search, filters, and aggregations.
+      tags:
+        - Search
+      operationId: searchDocuments
+      parameters:
+        - name: q
+          in: query
+          description: Search query (full-text)
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 1000
+        - name: source
+          in: query
+          description: Filter by source (rss, darkweb, commercial)
+          schema:
+            type: string
+            enum: [rss, darkweb, commercial, all]
+            default: all
+        - name: risk
+          in: query
+          description: Filter by risk level
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: from
+          in: query
+          description: Start date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          description: End date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: Maximum results (default 20, max 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Pagination offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  hits:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  aggregations:
+                    type: object
+        '400':
+          description: Invalid search parameters
+        '503':
+          description: Search service unavailable
+
+  /activity/stream:
+    get:
+      summary: Real-time activity stream
+      description: Server-sent events (SSE) for real-time threat updates
+      tags:
+        - Events
+      operationId: activityStream
+      parameters:
+        - name: source
+          in: query
+          description: Filter by source
+          schema:
+            type: string
+        - name: risk
+          in: query
+          description: Minimum risk level
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: Activity stream
+          content:
+            text/event-stream:
+              schema:
+                type: object
+                properties:
+                  event:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Document'
+
+components:
+  schemas:
+    Document:
+      type: object
+      description: Indexed cyber intelligence document
+      properties:
+        id:
+          type: string
+          description: Unique document ID
+        title:
+          type: string
+        content:
+          type: string
+        source_id:
+          type: string
+          description: Source feed identifier
+        source_name:
+          type: string
+        url:
+          type: string
+          format: uri
+        risk:
+          type: string
+          enum: [low, medium, high, critical]
+        published_at:
+          type: string
+          format: date-time
+        fetched_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          additionalProperties: true
+      required:
+        - id
+        - title
+        - source_id
+        - published_at
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (planned)
+
+tags:
+  - name: System
+    description: System health and status
+  - name: Search
+    description: Search cyber threat intelligence
+  - name: Events
+    description: Real-time event streaming

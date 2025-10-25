@@ -1,0 +1,21 @@
+PAKKE: Cursor-agenter + Audit + CI/Release + Deploy
+
+Anvendelse
+1) Udpak i repoets rod.
+2) I Cursor: Opret agenter og tilknyt `.cursor/context.md`.
+3) Audit:
+   export OPENSEARCH_URL="https://<railway-opensearch>"
+   export OPENSEARCH_USERNAME="<user>"
+   export OPENSEARCH_PASSWORD="<pass>"
+   export API_BASE="https://<api-domain>/api/v1"  # eller http://localhost:8080/api/v1
+   npm run audit:sources && npm run audit:contract && npm run audit:score
+4) Release:
+   scripts/release/version-bump.sh patch
+   scripts/release/changelog.sh
+   git add -A && git commit -m "chore(release): v$(cat .version)"
+   git tag v$(cat .version) && git push && git push --tags
+5) Verificér:
+   scripts/release/verify-health.sh "https://<api-domain>"
+
+Cursor prompt
+Du eksekverer: Design→Build→Test→Release via agenterne. Brug audit-makroen til at gate. Kør release-makroen ved tag. Rapportér kun afvigelser fra acceptance.

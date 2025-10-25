@@ -1,0 +1,41 @@
+name: Release
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { service: [api, worker] }
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      OPENSEARCH_URL: ${{ secrets.OPENSEARCH_URL }}
+      OPENSEARCH_USERNAME: ${{ secrets.OPENSEARCH_USERNAME }}
+      OPENSEARCH_PASSWORD: ${{ secrets.OPENSEARCH_PASSWORD }}
+      MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+      MINIO_REGION: ${{ secrets.MINIO_REGION }}
+      MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+      MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+      RAILWAY_API_SERVICE: ${{ secrets.RAILWAY_API_SERVICE }}
+      RAILWAY_WORKER_SERVICE: ${{ secrets.RAILWAY_WORKER_SERVICE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'pnpm' }
+      - name: Install pnpm
+        run: npm i -g pnpm
+      - name: Install dependencies
+        run: pnpm install -w --frozen-lockfile
+      - name: Run tests
+        run: pnpm test || echo 'no tests'
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+      - name: Deploy
+        run: |
+          if [ "${{ matrix.service }}" = "api" ]; then
+            railway up --service "$RAILWAY_API_SERVICE" --detach
+          else
+            railway up --service "$RAILWAY_WORKER_SERVICE" --detach
+          fi

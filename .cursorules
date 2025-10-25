@@ -1,0 +1,135 @@
+# Cyberstreams V2 – Project Rules & Architecture
+
+## Architecture Convention
+Følg modular layout: `apps/api`, `apps/worker`, `apps/darkweb-connector`, `data/Cyberfeeds`, `infra/opensearch`, `scripts/`, `.cursor/`. Ny kode skal passe ind i denne struktur. Hold single responsibility per modul.
+
+## Deployment Convention
+Deploy kun via Railway eller CI defineret i `.github/workflows/release.yml`. Hver service skal eksponere `/api/v1/health`. Brug Makefile targets (`make mvp`, `make release`) som canonical flow.
+
+## Audit Flow
+Før release kør: `npm run audit:sources`, `npm run audit:contract`, `npm run audit:score`. Fejl fra audit er blockers. Gem audit-output som artefakt i CI.
+
+## Release Flow
+Versionering er semantisk. Brug `scripts/release/version-bump.sh` og `scripts/release/changelog.sh`. Opret git-tag `v<version>` og push tags for at trigge release workflow.
+
+## CI Integration
+CI lever i `.github/workflows/release.yml`. Nye workflows må kun føjes hvis CI/Release agent og docs er opdateret. CI skal indeholde gates for contract-tests og smoke-tests.
+
+## Environment Management
+Ingen secrets i kode. Alle credentials i Railway secrets eller GitHub Secrets. Kendte variabler: `OPENSEARCH_URL`, `OPENSEARCH_USERNAME`, `OPENSEARCH_PASSWORD`, `MINIO_*`, `RAILWAY_TOKEN`, `RAILWAY_API_SERVICE`, `RAILWAY_WORKER_SERVICE`, `OLLAMA_API_KEY`, `TOR_BRIDGES`, `TOR_CONTROL_PASS`.
+
+## AI Agent Policy
+Cursor-agenter skal indlæse `.cursor/context.md`. Agenter må kun ændre godkendte kataloger (`apps/`, `infra/`, `data/`) og skal respektere acceptance-krav i agentfiler. Brug Make targets fremfor ad-hoc scripts.
+
+## Code Ownership
+Primær maintainer: Claus Westergaard Kraft. Alle automatiske PR'er skal kræve review før merge. Ændringer af security- eller ingestion-kode kræver 2 approvers.
+
+## Language Policy
+Kode-kommentarer og commits på engelsk. Dokumentation og README på dansk med korte engelske resuméer hvor relevant.
+
+## Makefile Authority
+Makefile er source-of-truth for build/deploy/verify. Brug `make mvp` og `make release`. Agenter må ikke omgå disse targets.
+
+## Service Naming
+Railway services navngives: `cyberstreams-api`, `cyberstreams-worker`, `cyberstreams-darkweb`. Hvis service mangler: `railway up --service <name> --path <dir>`.
+
+## API Contract
+`packages/contracts/openapi.yaml` er autoritativ. Implementerede endpoints skal matche OpenAPI. Kontraktafvigelser skal have ADR og testes i contract-coverage.
+
+## Observability
+Alle services logger JSON til stdout. Medtag `trace_id`/`request_id`, `latency_ms` og downstream-status. Eksporter metrics via OpenTelemetry til Grafana. Health endpoint skal være dependency-light.
+
+## Data Classification & Retention
+Klassificer data ved indtag: public, internal, sensitive, pii. Default hot-retention 90 dage. Flyt til searchable snapshots eller delete i ILM efter 90 dage. Dokumentér retention i `docs/retention.md`.
+
+## Source Declaration
+Alle kilder skal deklareres i `data/Cyberfeeds/*.yaml`. Skema skal indeholde: `id`, `name`, `url`, `type`, `risk`, `enabled`, `fetch: {interval, parser, auth}`. Risky kilder skal default være `enabled:false`.
+
+## Audit Logging for Fetchers
+Hver fetch skal emitte audit-post: `source_id`, `url`, `timestamp`, `status_code`, `byte_count`, `sha256`, `circuit_id` (for Tor), `worker_id`. Logs beholdes immutable i min. 180 dage.
+
+## Dark Web – Disabled by Default
+Alle `.onion` kilder er DISABLED som default i `data/Cyberfeeds/darkweb.yaml`. Aktivér kun efter juridisk godkendelse og dokumenteret DPIA. Aktiver via change request og audit trail.
+
+## Dark Web – Isolation & Network
+Darkweb-connector kører i isoleret service/container (`apps/darkweb-connector`). Al egress via lokal Tor SOCKS5. Ingen clearnet egress fra connector. Anvend seccomp, AppArmor/SELinux og resource caps.
+
+## Dark Web – Fetcher Stack
+Brug undici/got + socks-proxy-agent eller Tor system package. Undgå headless browsers i produktion. Implementér per-host rate limits, jitter og backoff. Rotate circuits via Tor control (NEWNYM) med begrænsning.
+
+## Dark Web – Sanitization & Quarantine
+Strip scripts, styles, forms, iframes. Gem raw HTML kun i MinIO bucket 'quarantine/' med SSE. Index kun sanitized tekst. Gem metadata og hash for hver raw-fil.
+
+## Dark Web – No Binary Downloads
+Ingen automatiske downloads af binære filer eller medier. Hvis fundet, gem kun metadata og quarantinér artefakt. Handl som potentiel bevismateriale og eskalér.
+
+## Dark Web – Legal & Compliance
+Al indhentning fra dark web kræver dokumenteret lawful basis. Dokumentér formål, scope, juridisk godkendelse og retention. Opsæt reviewer-flow for potentielt ulovligt indhold.
+
+## Dark Web – Secrets
+`TOR_BRIDGES` og `TOR_CONTROL_PASS` placeres i Railway secrets. Broer må aldrig committes. Bridges kan være obfs4 eller snowflake.
+
+## Dark Web – Incident Procedure
+Ved detektion af illegalt materiale: pause ingest for kilden, tag dokumentet 'review_required', notifér ejere og retshåndhævelse som angivet i runbook.
+
+## Social Platforms – General Policy
+Indhent kun offentligt tilgængeligt indhold eller indhold med udtrykkeligt samtykke. Respekter platform Terms of Service. Tokens og API-nøgler i Railway secrets. Do not scrape where API exists.
+
+## Telegram
+Brug Telegram Bot API eller MTProto via godkendte biblioteker. Indsaml kun fra offentlige kanaler eller kanaler med dokumenteret tilladelse. Ingen private beskeder. Metadata: `channel_id`, `message_id`, `timestamp`. Redact usernames medmindre nødvendigt.
+
+## Reddit
+Brug Reddit OAuth API. Undgå HTML-scraping. Indsaml kun godkendte subreddits. Implementér rate-limit håndtering og cache.
+
+## LinkedIn & Facebook
+Brug kun officielle Graph/Partner APIs. Ingen scraping. Indsaml kun organisationers sider/posts hvor adgang er givet. Forvent app review og compliance.
+
+## Snapchat
+Ingen scraping. Indhent data kun via officielle dataexporter eller direkte leverancer fra rettighedshavere. Dokumentér og godkend før indtag.
+
+## Other Sources & Vendors
+Foretræk vetted commercial feeds (Recorded Future, VirusTotal) og netværks-scanner APIs (Shodan, Censys). Brug disse før aktiv dark-web ingestion.
+
+## PII Detection & Redaction
+Kør PII-detektion ved indtag. Redact eller tokeniser PII før indeks hvis ikke nødvendigt for analysen. Implementér sletteflow for subject access requests.
+
+## Retention & Deletion
+Hot data: 90 dage. Warm/archives: søgbare snapshots. Raw quarantine: 180 dage. Automatisér ILM/cleanup. Dokumentér retention i `docs/retention.md`.
+
+## Testing & Staging
+Test darkweb-connector kun mod approved test-onion eller mirrored snapshots i staging. Ingen live dark-web targets i dev without approval.
+
+## Monitoring & Alerts
+Opsæt alerts for high error rate, unusual fetch volume, detection of illegal keywords, and circuit failures. Log metrics to Grafana and traces to OTel.
+
+## Documentation
+Dokumentér runbooks, legal approvals, DPIA, retention og dataflows i `docs/ops/*.md`. Include example `data/Cyberfeeds/darkweb.yaml` med `enabled:false` som skabelon.
+
+## Experimental Modules Bundle v3
+- Aktiver de eksperimentelle moduler fra `cursor.project.rules.experimental.bundle.v3.json` og følg deres UI-defaults (vis probabiliteter, konfidensintervaller, severity thresholds: warn=0.6, alert=0.8, critical=0.92).
+- Alt output fra disse moduler skal følge det definerede schema med felter: `id`, `ts`, `module`, `kind`, `summary`, `p`, `ci`, `severity`, `evidence`, `explain` (+ valgfrie `uncertainty`, `calibration`, `links`).
+- Kalibrering skal ske via Platt eller isotonic scaling med rapportering af Brier, ECE, AUROC og AUPR. Brug beta-priorer for sparse kanter.
+
+## Experimental Module Lifecycle
+- Følg cyklus: scaffold → dataset → train → calibrate → deploy → shadow → promote → retire.
+- Shadow-mode er obligatorisk før automatiske handlinger. Promotion kræver, at ECE/precision-mål er opfyldt og analyst sign-off er dokumenteret.
+- Log altid kalibreringsresultater og gem artefakter fra hver fase.
+
+## Module appe (Adversary Simulation & Predictive Pathing Engine)
+- Antagelser: Angrebsadfærd modelleres som POMDP; estimér kantposterior via DBN; brug PPO/MCTS for politikker og IRL til præferenceindlæring.
+- Output skal inkludere graf-overlay med sandsynligheder og 95% CI, top-k path anbefalinger med forklaringer samt API-endpoints `/api/v1/appe/simulate|paths|alerts`.
+- Acceptance: Top-5 path hit-rate ≥70%, Brier ≤0.20, explain payload viser top-5 edge-bidrag. Preconditions inkluderer ≥80% asset/vulnerability-dækning og kalibreringsdatasæt.
+
+## Module chfde (Cognitive HUMINT Fusion & Deception Engine)
+- Brug RAG, intent-classifiers og deception-strategier med honeytokens; ingen PII i artefakter og juridisk godkendelse kræves før aktivering.
+- Output: kampagne-briefs, telemetry med p(malicious) + CI og API-endpoints `/api/v1/chfde/generate|deploy|telemetry`.
+- Acceptance: ECE ≤0.07, rollback <5 min, QA-checkliste opfyldt; shadow-mode før produktionsdrift.
+
+## Module tgaiku (Temporal Graph AI & Kill Chain Unraveler)
+- Anvend temporal GNN'er (TGAT/TGN/DySAT) til anomale subgrafer og GNNExplainer for forklaringer; kræver ≥14 dages baseline og asset/identity mapping.
+- Output: subgraph alerts med p + 95% CI, kill-chain faser, visualiseringer med usikkerhed; API-endpoints `/api/v1/tgaiku/score|subgraph|explain`.
+- Acceptance: Precision ≥0.75 ved threshold, ECE ≤0.05, alle alerts skal have explain payload.
+
+## Experimental Module Agent
+- Agent-id: `experimental-module-agent`; ansvar: styre modul-livscyklus, generere scaffold, datasæt, træning, kalibrering, deployment, promotion og decommission.
+- Prompts skal følge de definerede kommandoer (scaffold, dataset, train, calibrate, deploy, promote) og respektere constraints: returnér altid p + 95% CI, ingen dark-web/PII uden godkendelse, log Brier/ECE pr. release.
