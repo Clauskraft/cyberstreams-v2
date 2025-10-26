@@ -29,10 +29,10 @@ jobs:
       OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY || '' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'pnpm' }
       - name: Install pnpm
         run: npm i -g pnpm
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'pnpm' }
       - name: Install dependencies
         run: pnpm install -w --frozen-lockfile
       - name: Run tests
