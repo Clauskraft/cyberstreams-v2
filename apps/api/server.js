@@ -196,11 +196,10 @@ async function checkRateLimit(request, reply) {
 // ============================================
 // PERMISSION CHECK
 // ============================================
-async function checkPermission(endpoint) {
+function requirePermission(endpoint) {
   return async (request, reply) => {
-    if (!request.user) return;
-    if (!request.user.permissions.includes(endpoint)) {
-      return reply.code(403).send({
+    if (!request.user || !request.user.permissions.includes(endpoint)) {
+      reply.code(403).send({
         error: "Forbidden",
         message: `API key does not have permission for ${endpoint}`,
         code: "INSUFFICIENT_PERMISSIONS"
@@ -222,9 +221,17 @@ app.register(async (fastify) => {
   });
 });
 
-// Register authentication hook for all routes
-app.addHook("preHandler", authenticateRequest);
-app.addHook("preHandler", checkRateLimit);
+app
+  .decorateRequest("user", null)
+  .decorateRequest("apiKey", null);
+
+app.addHook("onRequest", async (request, reply) => {
+  await authenticateRequest(request, reply);
+});
+
+app.addHook("preHandler", async (request, reply) => {
+  await checkRateLimit(request, reply);
+});
 
 // ============================================
 // MOCK DATABASE OF DOCUMENTS
@@ -306,7 +313,7 @@ app.get("/api/v1/health", async (request, reply) => {
 // ============================================
 // Search Endpoint (PROTECTED)
 // ============================================
-app.get("/api/v1/search", { preHandler: checkPermission("search") }, async (request, reply) => {
+app.get("/api/v1/search", { preHandler: requirePermission("search") }, async (request, reply) => {
   const { q, source = "all", risk, from, to, limit = 20, offset = 0 } = request.query;
 
   // Validate required parameter
@@ -368,7 +375,7 @@ app.get("/api/v1/search", { preHandler: checkPermission("search") }, async (requ
 // ============================================
 // Activity Stream (PROTECTED - SSE)
 // ============================================
-app.get("/api/v1/activity/stream", { preHandler: checkPermission("stream") }, async (request, reply) => {
+app.get("/api/v1/activity/stream", { preHandler: requirePermission("stream") }, async (request, reply) => {
   auditLog("stream_connect", { userId: request.user.userId });
 
   reply.header("Content-Type", "text/event-stream");
@@ -402,7 +409,7 @@ app.get("/api/v1/activity/stream", { preHandler: checkPermission("stream") }, as
 // ============================================
 // TOKEN EXCHANGE ENDPOINT (Protected with API Key)
 // ============================================
-app.post("/api/v1/auth/token", { preHandler: checkPermission("search") }, async (request, reply) => {
+app.post("/api/v1/auth/token", { preHandler: requirePermission("search") }, async (request, reply) => {
   const { scopes = ["search", "stream"], expiresIn = 3600 } = request.body || {};
 
   // Generate JWT token
