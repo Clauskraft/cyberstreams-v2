@@ -1,14 +1,14 @@
 # Cyberstreams V2 – Build Status
 
-**Date:** 2025-10-25  
-**Status:** ✅ **MVP FUNCTIONAL**  
-**Version:** 0.1.0  
+**Date:** 2025-10-26  
+**Status:** ✅ **Phase 2 Security Stack LIVE**  
+**Version:** 0.2.0 (release candidate)  
 
 ---
 
 ## 🎯 Build Agent Acceptance Criteria
 
-### ✅ COMPLETED
+### ✅ COMPLETED (Current Release)
 
 #### API Service Implementation
 - ✅ **Endpoint: `/api/v1/health`**
@@ -16,22 +16,21 @@
   - Dependency-light, responds in <500ms
   - Deployment verified on Railway
 
-- ✅ **Endpoint: `/api/v1/search`**
-  - Full-text search with filters (source, risk, date range)
-  - Pagination support (limit, offset)
-  - Aggregations by source and risk level
-  - Returns results with metadata
+- ✅ **Endpoint: `/api/v1/search`** — nu sikret med API key + JWT + rate limiting
+  - Full-text search med filtre (source, risk, dato)
+  - Pagination (limit, offset)
+  - Aggregerer på kilde og risikoniveau
+  - Returnerer resultater med metadata
 
-- ✅ **Endpoint: `/api/v1/activity/stream`**
-  - Server-Sent Events (SSE) implementation
-  - Streams documents with heartbeat every 30s
-  - Real-time threat updates capability
+- ✅ **Endpoint: `/api/v1/activity/stream`** — SSE stream, kræver auth + permissions
+  - Sender events kontinuerligt med heartbeat
+  - Real-time threat updates
 
 #### Worker Implementation
-- ✅ **RSS Feed Ingestion**
-  - Fetches from Ars Technica and Hacker News
-  - 10 articles per feed (20 total documents indexed)
-  - Real feeds, verified accessible
+- ✅ **RSS Feed Ingestion + Source Bundle v1**
+  - Bootstrapped med 20 dokumenter
+  - DK/EU/Nordic/Global YAML bundler tilgængelige
+  - Klar til OpenSearch integration
 
 - ✅ **Document Normalization**
   - Standardized schema: id, title, content, source_id, source_name, url, risk, published_at, fetched_at, tags, metadata
@@ -43,8 +42,7 @@
   - Audit logging: source, URL, bytes, SHA256 hash
   - Batch indexing with proper error handling
 
-#### Quality & Build
-- ✅ **npm audit:sources** – Validates feed declarations
+- ✅ **npm audit:sources** – Validerer kilde deklarationer (ny bundle)
 - ✅ **npm audit:contract** – Verifies OpenAPI compliance
 - ✅ **Build green** – All dependencies installed, no errors
 - ✅ **Health OK** – `/api/v1/health` returns 200 status
@@ -122,6 +120,11 @@ RSS Feeds (2 sources)
 
 **Result:** 20 documents successfully indexed from real feeds
 
+### Issue: Missing Security Layer
+**Problem:** API endpoints var åbne uden authentication, rate limiting og permissions.  
+**Solution:** Build Agent implementerede API-key + JWT auth + rate limiting + security headers.  
+**Result:** Alle beskyttede endpoints kræver gyldige credentials og permissions; 403/429 håndteres og logges.
+
 ---
 
 ## 📁 Project Files
@@ -159,20 +162,18 @@ RSS Feeds (2 sources)
 ## 🚀 Next Steps
 
 ### Short Term (Critical Path)
-1. **OpenSearch Integration** – Replace mock indexing with actual OpenSearch POST
-   - Create `cyber-docs` alias
-   - Define index template with proper mapping
-   - Enable full-text search
+1. **OpenSearch Integration** – Replace mock indexing med rigtig OpenSearch cluster
+   - Opret `cyber-docs` alias + index template
+   - Implementer `apps/api` → OpenSearch client, brug real search results
 
-2. **Production Feeds** – Enable more sources once infrastructure ready
-   - CISA Alerts (when accessible)
-   - NVD CVE feed
-   - Reddit r/netsec
+2. **PII Detection & Redaction** – Beskyt sensitive data
+   - Design agent definerer regler
+   - Build implementerer detection + redaction
+   - Test sikrer, at PII ikke lækker
 
-3. **API Enhancement** – Add filtering and auth
-   - Source filtering in search
-   - Authentication (API key)
-   - Rate limiting
+3. **Security Tests & Coverage** – Udvid Test Agent scope
+   - Automatiser auth/rate-limit failure tests
+   - GitHub Actions gate på coverage ≥90%
 
 ### Medium Term
 - Dark web connector (isolated service)
@@ -192,8 +193,8 @@ RSS Feeds (2 sources)
 
 **Build Agent Requirements:**
 - [x] `/api/v1/health` implemented and returning 200
-- [x] `/api/v1/search` searching documents
-- [x] `/api/v1/activity/stream` streaming events
+- [x] `/api/v1/search` searching documents (auth & rate limiting aktiv)
+- [x] `/api/v1/activity/stream` streaming events (auth beskyttet)
 - [x] Worker fetching RSS feeds
 - [x] Worker normalizing documents
 - [x] Worker indexing to `cyber-docs` alias
