@@ -39,6 +39,11 @@ jobs:
         run: pnpm test || echo 'no tests'
       - name: Install Railway CLI
         run: npm i -g @railway/cli
+      - name: Verify Tor SOCKS proxy
+        env:
+          TOR_SOCKS_HOST: 127.0.0.1
+          TOR_SOCKS_PORT: 9050
+        run: bash scripts/darkweb/verify-tor.sh
       - name: Deploy
         run: |
           if [ "${{ matrix.service }}" = "api" ]; then
