@@ -1,6 +1,12 @@
 import Fastify from "fastify";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import fastifyStatic from "@fastify/static";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = Fastify({ logger: true });
 const PORT = process.env.PORT || 8080;
@@ -43,11 +49,25 @@ const apiKeyUsage = new Map();
 // AUTHENTICATION MIDDLEWARE
 // ============================================
 async function authenticateRequest(request, reply) {
-  // Health endpoint is public (no authentication required)
-  if (request.url === "/api/v1/health") {
-    return;
+  // Extract path without query string
+  const path = request.url.split('?')[0];
+
+  // Static assets (served by fastify-static) don't need authentication
+  // Only API routes require authentication
+  if (!path.startsWith('/api/')) {
+    return; // Skip auth for frontend assets
   }
 
+  // Public API endpoints (no authentication required)
+  const PUBLIC_API_ROUTES = [
+    '/api/v1/health'
+  ];
+
+  if (PUBLIC_API_ROUTES.includes(path)) {
+    return; // Skip auth for public API endpoints
+  }
+
+  // All other /api/* routes require authentication
   let apiKey = null;
   let token = null;
 
@@ -199,7 +219,7 @@ async function checkRateLimit(request, reply) {
 function requirePermission(endpoint) {
   return async (request, reply) => {
     if (!request.user || !request.user.permissions.includes(endpoint)) {
-      reply.code(403).send({
+      return reply.code(403).send({
         error: "Forbidden",
         message: `API key does not have permission for ${endpoint}`,
         code: "INSUFFICIENT_PERMISSIONS"
@@ -231,6 +251,16 @@ app.addHook("onRequest", async (request, reply) => {
 
 app.addHook("preHandler", async (request, reply) => {
   await checkRateLimit(request, reply);
+});
+
+// ============================================
+// SERVE STATIC FRONTEND
+// ============================================
+const webDistPath = path.resolve(__dirname, "../web/dist");
+await app.register(fastifyStatic, {
+  root: webDistPath,
+  prefix: "/",
+  constraints: {}
 });
 
 // ============================================
@@ -404,6 +434,19 @@ app.get("/api/v1/activity/stream", { preHandler: requirePermission("stream") }, 
   });
 
   sseClients.add(stream);
+});
+
+// ============================================
+// SPA FALLBACK ROUTE (must be after all API routes)
+// ============================================
+app.setNotFoundHandler((request, reply) => {
+  // If request is for API, return 404
+  if (request.url.startsWith("/api/")) {
+    reply.code(404).send({ error: "Not Found" });
+    return;
+  }
+  // Otherwise, serve index.html for SPA routing
+  reply.sendFile("index.html");
 });
 
 // ============================================
