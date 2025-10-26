@@ -9,17 +9,24 @@ jobs:
     strategy:
       matrix: { service: [api, worker] }
     env:
+      # Required secrets
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_API_SERVICE: ${{ secrets.RAILWAY_API_SERVICE }}
+      RAILWAY_WORKER_SERVICE: ${{ secrets.RAILWAY_WORKER_SERVICE }}
+
+      # OpenSearch
       OPENSEARCH_URL: ${{ secrets.OPENSEARCH_URL }}
       OPENSEARCH_USERNAME: ${{ secrets.OPENSEARCH_USERNAME }}
       OPENSEARCH_PASSWORD: ${{ secrets.OPENSEARCH_PASSWORD }}
+
+      # MinIO / S3
       MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
       MINIO_REGION: ${{ secrets.MINIO_REGION }}
       MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
       MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
-      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-      RAILWAY_API_SERVICE: ${{ secrets.RAILWAY_API_SERVICE }}
-      RAILWAY_WORKER_SERVICE: ${{ secrets.RAILWAY_WORKER_SERVICE }}
+
+      # Optional: Ollama (if not set, workflow will continue without it)
+      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
