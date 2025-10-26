@@ -218,3 +218,10 @@ RSS Feeds (2 sources)
 
 **Built by:** Claus Westergaard Kraft  
 **Last Updated:** 2025-10-25 22:50 UTC
+
+## 🚀 Web Console
+
+- ✅ Vite + React konsol implementeret (`apps/web`)
+- ✅ Railway deploy (`mellow-reverence`) – frontenden tilgængelig offentligt
+- ✅ API key / JWT inputs i UI + SSE log view
+- 🔄 Dokumentation opdateret (README) – web preview beskrevet

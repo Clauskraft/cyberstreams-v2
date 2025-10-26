@@ -33,6 +33,29 @@ curl http://localhost:8080/api/v1/health
 # Expected: {"status":"ok"}
 ```
 
+## 🌐 Web Console
+
+### Quick Preview
+
+The Cyberstreams Web Console provides a visual dashboard for search and stream monitoring.
+
+```bash
+# Run locally
+npm run install:all
+npm run start:web
+# Visit http://localhost:5173
+
+# Deploy bundle (already live on Railway)
+railway up --service mellow-reverence --detach
+curl https://mellow-reverence-production.up.railway.app
+```
+
+**Features:**
+- Search form (query, source and risk filters)
+- Real-time activity stream via SSE
+- Input fields for `X-API-Key` and JWT handling
+- Sample API base default to Railway endpoint
+
 ## 📋 Architecture
 
 ### Services
