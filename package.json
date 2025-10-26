@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "vitest": "^1.0.4",
-    "@vitest/coverage-v8": "^1.0.4"
+    "@vitest/coverage-v8": "^1.0.4",
+    "yaml": "^2.4.2"
   }
 }

@@ -1,0 +1,70 @@
+
+- id: se-cert-se-msb
+  name: CERT-SE (MSB) – Råd og varningar
+  url: https://www.cert.se/
+  type: html
+  region: NORDIC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: no-nsm-advisories
+  name: NSM (Norway) – Sikkerhetsråd
+  url: https://www.nsm.no/aktuelt/
+  type: html
+  region: NORDIC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: fi-ncsc-traficom
+  name: NCSC-FI (Traficom) – Alerts
+  url: https://www.kyberturvallisuuskeskus.fi/en/news
+  type: html
+  region: NORDIC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: is-cert-is
+  name: CERT-IS – Advisories
+  url: https://www.cert.is/
+  type: html
+  region: NORDIC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: dk-nordic-tenders-mercell
+  name: Mercell – Nordic tenders (aggregator)
+  url: https://www.mercell.com/
+  type: html
+  region: NORDIC
+  category: tenders
+  risk: medium
+  enabled: false
+  fetch: { interval: 4h, parser: html }
+
+- id: no-doffin
+  name: DOFFIN – Norway tenders
+  url: https://www.doffin.no/
+  type: html
+  region: NORDIC
+  category: tenders
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: fi-hilma
+  name: HILMA – Finland tenders
+  url: https://www.hankintailmoitukset.fi/en/
+  type: html
+  region: NORDIC
+  category: tenders
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }

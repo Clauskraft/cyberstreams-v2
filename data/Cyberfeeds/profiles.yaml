@@ -1,0 +1,106 @@
+
+# Influential public profiles (max 15)
+- id: prof-krebs
+  name: Brian Krebs
+  platform: blog
+  handle: krebsonsecurity
+  url: https://krebsonsecurity.com/
+  tags: [investigation,breaches]
+
+- id: prof-hypponen
+  name: Mikko Hyppönen
+  platform: X
+  handle: @mikko
+  url: https://x.com/mikko
+  tags: [malware,policy]
+
+- id: prof-troyhunt
+  name: Troy Hunt
+  platform: blog
+  handle: troyhunt
+  url: https://www.troyhunt.com/
+  tags: [breaches,security]
+
+- id: prof-kbeaumont
+  name: Kevin Beaumont
+  platform: X
+  handle: @GossiTheDog
+  url: https://x.com/GossiTheDog
+  tags: [blue-team,msrc]
+
+- id: prof-kimzetter
+  name: Kim Zetter
+  platform: newsletter
+  handle: zero day
+  url: https://www.kimzetter.com/
+  tags: [journalism,policy]
+
+- id: prof-costin
+  name: Costin Raiu
+  platform: X
+  handle: @craiu
+  url: https://x.com/craiu
+  tags: [apt,research]
+
+- id: prof-riskiest
+  name: Risky Business
+  platform: podcast
+  handle: risky.biz
+  url: https://risky.biz/
+  tags: [news,industry]
+
+- id: prof-lesley
+  name: Lesley Carhart
+  platform: blog
+  handle: @hacks4pancakes
+  url: https://tisiphone.net/
+  tags: [ir,dfir]
+
+- id: prof-dmitri
+  name: Dmitri Alperovitch
+  platform: X
+  handle: @DAlperovitch
+  url: https://x.com/DAlperovitch
+  tags: [geopolitics,threats]
+
+- id: prof-catalin
+  name: Catalin Cimpanu
+  platform: newsletter
+  handle: riskybiz/therecord
+  url: https://www.riskybiznews.com/
+  tags: [news,breaches]
+
+- id: prof-jake
+  name: Jake Williams
+  platform: blog
+  handle: MalwareJake
+  url: https://www.scythe.io/blog
+  tags: [ir,opsec]
+
+- id: prof-gleb
+  name: The Grugq
+  platform: X
+  handle: @thegrugq
+  url: https://x.com/thegrugq
+  tags: [opsec,threats]
+
+- id: prof-swiftonsec
+  name: SwiftOnSecurity
+  platform: X
+  handle: @SwiftOnSecurity
+  url: https://x.com/SwiftOnSecurity
+  tags: [blue-team,windows]
+
+- id: prof-vxunderground
+  name: vx-underground
+  platform: X
+  handle: @vxunderground
+  url: https://x.com/vxunderground
+  tags: [malware,samples]
+
+- id: prof-zurih
+  name: Zurich Research (ETH ZISC)
+  platform: blog
+  handle: zisc
+  url: https://zisc.seclab.bethgelab.org/
+  tags: [research,academic]

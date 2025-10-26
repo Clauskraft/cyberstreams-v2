@@ -1,0 +1,56 @@
+
+# Core keywords & tags (extend as needed)
+- keyword: ransomware
+  category: malware
+  priority: high
+- keyword: data leak
+  category: breach
+  priority: high
+- keyword: supply chain
+  category: attack
+  priority: high
+- keyword: zero-day
+  category: vulnerability
+  priority: high
+- keyword: credential dump
+  category: data
+  priority: medium
+- keyword: APT29
+  category: actor
+  priority: high
+- keyword: LockBit
+  category: ransomware
+  priority: high
+- keyword: phishing kit
+  category: phishing
+  priority: medium
+- keyword: KEV
+  category: cve
+  priority: medium
+- keyword: NIS2
+  category: regulation
+  priority: high
+- keyword: DORA
+  category: regulation
+  priority: high
+- keyword: GDPR fine
+  category: regulation
+  priority: medium
+- keyword: udbud
+  category: tender
+  priority: medium
+- keyword: consultation
+  category: policy
+  priority: medium
+- keyword: critical infrastructure
+  category: sector
+  priority: high
+- keyword: ICS
+  category: sector
+  priority: medium
+- keyword: TTP
+  category: threat
+  priority: medium
+- keyword: lateral movement
+  category: threat
+  priority: medium

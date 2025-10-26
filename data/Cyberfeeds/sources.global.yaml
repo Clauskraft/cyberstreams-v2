@@ -1,0 +1,287 @@
+
+# UK
+- id: uk-ncsc-advisories
+  name: UK NCSC – Advisories
+  url: https://www.ncsc.gov.uk/section/advice-guidance/all-topics
+  type: html
+  region: GLOBAL-EMEA
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: html }
+
+# US
+- id: us-cisa-alerts
+  name: CISA – Cybersecurity Advisories
+  url: https://www.cisa.gov/news-events/cybersecurity-advisories
+  type: html
+  region: GLOBAL-AMER
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: html }
+
+- id: us-nvd-cve
+  name: NIST NVD – CVE Feeds
+  url: https://nvd.nist.gov/vuln/data-feeds
+  type: html
+  region: GLOBAL-AMER
+  category: vuln,cve
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: us-fbi-ic3
+  name: FBI IC3 – Alerts
+  url: https://www.ic3.gov/Media/News.aspx
+  type: html
+  region: GLOBAL-AMER
+  category: law-enforcement,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+# EU nations
+- id: fr-anssi
+  name: ANSSI – Bulletins
+  url: https://www.ssi.gouv.fr/actualite/
+  type: html
+  region: GLOBAL-EMEA
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: de-bsi
+  name: BSI – Sicherheitswarnungen
+  url: https://www.bsi.bund.de/
+  type: html
+  region: GLOBAL-EMEA
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: ch-govcert
+  name: GovCERT.ch – Advisories
+  url: https://www.govcert.ch/
+  type: html
+  region: GLOBAL-EMEA
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+# APAC
+- id: au-acsc-alerts
+  name: ACSC (AU) – Alerts
+  url: https://www.cyber.gov.au/newsroom
+  type: html
+  region: GLOBAL-APAC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: nz-certnz
+  name: CERT NZ – Advisories
+  url: https://www.cert.govt.nz/it-specialists/advisories/
+  type: html
+  region: GLOBAL-APAC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: jp-jpcert
+  name: JPCERT/CC – Notes
+  url: https://www.jpcert.or.jp/english/
+  type: html
+  region: GLOBAL-APAC
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+# Global research/news
+- id: news-bleepingcomputer
+  name: BleepingComputer – Security
+  url: https://www.bleepingcomputer.com/feed/
+  type: rss
+  region: GLOBAL
+  category: media,news
+  risk: low
+  enabled: true
+  fetch: { interval: 15m, parser: rss }
+
+- id: news-darkreading
+  name: Dark Reading
+  url: https://www.darkreading.com/rss.xml
+  type: rss
+  region: GLOBAL
+  category: media,news
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }
+
+- id: news-securityweek
+  name: SecurityWeek
+  url: https://feeds.feedburner.com/Securityweek
+  type: rss
+  region: GLOBAL
+  category: media,news
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }
+
+- id: blog-krebs
+  name: Krebs on Security
+  url: https://krebsonsecurity.com/feed/
+  type: rss
+  region: GLOBAL
+  category: blog,investigation
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }
+
+- id: blog-project-zero
+  name: Google Project Zero
+  url: https://googleprojectzero.blogspot.com/feeds/posts/default
+  type: rss
+  region: GLOBAL
+  category: research,vuln
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: blog-microsoft-msrc
+  name: Microsoft MSRC
+  url: https://msrc.microsoft.com/blog/feed/
+  type: rss
+  region: GLOBAL
+  category: vendor,patches
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: blog-unit42
+  name: Palo Alto Unit 42
+  url: https://unit42.paloaltonetworks.com/feed/
+  type: rss
+  region: GLOBAL
+  category: research,threat
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: blog-talos
+  name: Cisco Talos
+  url: https://blog.talosintelligence.com/feeds/posts/default
+  type: rss
+  region: GLOBAL
+  category: research,threat
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: blog-crowdstrike
+  name: CrowdStrike Blog
+  url: https://www.crowdstrike.com/blog/feed/
+  type: rss
+  region: GLOBAL
+  category: research,threat
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: blog-welivesecurity
+  name: ESET WeLiveSecurity
+  url: https://www.welivesecurity.com/feed/
+  type: rss
+  region: GLOBAL
+  category: research,threat
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: blog-securelist
+  name: Kaspersky Securelist
+  url: https://securelist.com/feed/
+  type: rss
+  region: GLOBAL
+  category: research,threat
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+# Indicators / abuse feeds
+- id: abusech-urlhaus
+  name: abuse.ch – URLHaus Feed
+  url: https://urlhaus.abuse.ch/feeds/
+  type: html
+  region: GLOBAL
+  category: indicators,malware
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: html }
+
+- id: abusech-malwarebazaar
+  name: abuse.ch – MalwareBazaar
+  url: https://bazaar.abuse.ch/export/
+  type: html
+  region: GLOBAL
+  category: indicators,malware
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: html }
+
+- id: phishtank
+  name: PhishTank
+  url: https://www.phishtank.com/developer_info.php
+  type: html
+  region: GLOBAL
+  category: phishing,indicators
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: ransomware-tracker
+  name: Ransomware.live – Tracker
+  url: https://ransomware.live/
+  type: html
+  region: GLOBAL
+  category: ransomware,tracker
+  risk: medium
+  enabled: true
+  fetch: { interval: 1h, parser: html }
+
+# Social/Forums (public)
+- id: reddit-netsec
+  name: Reddit – r/netsec
+  url: https://www.reddit.com/r/netsec/.rss
+  type: rss
+  region: GLOBAL
+  category: social,forum
+  risk: low
+  enabled: true
+  fetch: { interval: 15m, parser: rss }
+
+- id: reddit-cybersecurity
+  name: Reddit – r/cybersecurity
+  url: https://www.reddit.com/r/cybersecurity/.rss
+  type: rss
+  region: GLOBAL
+  category: social,forum
+  risk: low
+  enabled: true
+  fetch: { interval: 15m, parser: rss }
+
+- id: reddit-blueteamsec
+  name: Reddit – r/blueteamsec
+  url: https://www.reddit.com/r/blueteamsec/.rss
+  type: rss
+  region: GLOBAL
+  category: social,forum
+  risk: low
+  enabled: true
+  fetch: { interval: 15m, parser: rss }

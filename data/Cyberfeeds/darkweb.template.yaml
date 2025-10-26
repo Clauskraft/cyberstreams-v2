@@ -1,0 +1,11 @@
+- id: darkweb-sample-forum
+  name: Darkweb Forum (placeholder)
+  url: "[approval-required]"
+  type: forum
+  region: GLOBAL
+  category: darkweb
+  risk: high
+  enabled: false
+  fetch:
+    interval: 2h
+    parser: html

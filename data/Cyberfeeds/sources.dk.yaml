@@ -1,0 +1,101 @@
+
+# schema: { id, name, url, type[rss|html|api|social|forum], region, category, risk, enabled, fetch:{interval, parser, auth?} }
+- id: dk-cfcs-news
+  name: CFCS (Center for Cybersikkerhed) – Nyheder
+  url: https://cfcs.dk/da/nyheder/rss
+  type: rss
+  region: DK
+  category: cert,gov,news
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }
+
+- id: dk-dkcert-advisories
+  name: DKCERT – Advisories
+  url: https://cert.dk/rss/advisories.xml
+  type: rss
+  region: DK
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }
+
+- id: dk-fe-trusselsvurderinger
+  name: FE/DDIS – Trusselsvurderinger
+  url: https://fe-ddis.dk/rss/trusselsvurderinger.xml
+  type: rss
+  region: DK
+  category: intel,gov
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: dk-datatilsynet-news
+  name: Datatilsynet – Nyheder
+  url: https://www.datatilsynet.dk/nyheder
+  type: html
+  region: DK
+  category: regulator,privacy,news
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: dk-nc3-news
+  name: Nationalt Cyber Crime Center (NC3) – Nyheder
+  url: https://politi.dk/cybercrime
+  type: html
+  region: DK
+  category: law-enforcement,news
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: dk-digst-security
+  name: Digitaliseringsstyrelsen – IT-sikkerhed
+  url: https://digst.dk/it-loesninger/informationssikkerhed/
+  type: html
+  region: DK
+  category: gov,policy
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: dk-folketinget-bills
+  name: Folketinget – Lovforslag (oversigt)
+  url: https://www.ft.dk/da/arbejdsprocesser/lovforslag
+  type: html
+  region: DK
+  category: legislation,upcoming
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: dk-hoeringsportal
+  name: Høringsportalen – Høringer
+  url: https://www.hoeringsportal.dk/
+  type: html
+  region: DK
+  category: consultations,upcoming
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: dk-udbuddk
+  name: Udbud.dk – Offentlige udbud
+  url: https://www.udbud.dk/
+  type: html
+  region: DK
+  category: tenders
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: dk-version2-sikkerhed
+  name: Version2 – Sikkerhed
+  url: https://version2.dk/sikkerhed/rss
+  type: rss
+  region: DK
+  category: media,news
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }

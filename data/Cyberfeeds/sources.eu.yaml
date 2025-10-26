@@ -1,0 +1,60 @@
+
+- id: eu-enisa-news
+  name: ENISA – News & Publications
+  url: https://www.enisa.europa.eu/news/rss
+  type: rss
+  region: EU
+  category: agency,news
+  risk: low
+  enabled: true
+  fetch: { interval: 1h, parser: rss }
+
+- id: eu-cert-eu-advisories
+  name: CERT-EU – Advisories
+  url: https://cert.europa.eu/publications/rss
+  type: rss
+  region: EU
+  category: cert,advisory
+  risk: low
+  enabled: true
+  fetch: { interval: 30m, parser: rss }
+
+- id: eu-edpb-news
+  name: EDPB – News
+  url: https://edpb.europa.eu/news_en
+  type: html
+  region: EU
+  category: regulator,privacy,news
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
+
+- id: eu-eur-lex
+  name: EUR-Lex – EU Law & preparatory acts
+  url: https://eur-lex.europa.eu/
+  type: html
+  region: EU
+  category: legislation,upcoming
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: eu-have-your-say
+  name: EC – Have Your Say (consultations)
+  url: https://ec.europa.eu/info/law/better-regulation/have-your-say
+  type: html
+  region: EU
+  category: consultations,upcoming
+  risk: low
+  enabled: true
+  fetch: { interval: 4h, parser: html }
+
+- id: eu-ted
+  name: TED – Tenders Electronic Daily
+  url: https://ted.europa.eu/
+  type: html
+  region: EU
+  category: tenders
+  risk: low
+  enabled: true
+  fetch: { interval: 2h, parser: html }
