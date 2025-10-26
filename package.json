@@ -8,13 +8,14 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "install:all": "npm install && npm install -w apps/api && npm install -w apps/worker",
+    "install:all": "npm install && npm install -w apps/api && npm install -w apps/worker && npm install -w apps/web",
     "audit:sources": "node scripts/audit/sources-lint.mjs",
     "audit:contract": "node scripts/audit/contract-coverage.mjs",
     "audit:score": "bash scripts/audit/scorecard.sh",
     "build": "echo 'Build targets defined in individual services'",
     "start:api": "cd apps/api && npm start",
     "start:worker": "cd apps/worker && npm start",
+    "start:web": "cd apps/web && npm run dev",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:contract": "vitest run tests/contract",
@@ -25,7 +26,8 @@
   },
   "workspaces": [
     "apps/api",
-    "apps/worker"
+    "apps/worker",
+    "apps/web"
   ],
   "keywords": [
     "cybersecurity",
