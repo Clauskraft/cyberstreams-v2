@@ -97,6 +97,13 @@ button:disabled {
   margin-bottom: 0.9rem;
 }
 
+.hint {
+  display: block;
+  margin-top: 0.25rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
 label {
   display: block;
   margin-bottom: 0.3rem;

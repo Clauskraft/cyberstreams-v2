@@ -10,8 +10,22 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
  * - Complete workflow: health → search → stream
  */
 
+const baseUrl = process.env.SMOKE_BASE_URL || "http://localhost:8080";
+const apiKey = process.env.SMOKE_API_KEY || "key_test_1234567890abcdef";
+
+function withAuth(init = {}) {
+  const headers = new Headers(init.headers || {});
+  if (!headers.has("X-API-Key")) {
+    headers.set("X-API-Key", apiKey);
+  }
+  return { ...init, headers };
+}
+
+async function fetchWithAuth(path, init) {
+  return fetch(`${baseUrl}${path}`, withAuth(init));
+}
+
 describe("Smoke Tests – Happy Path Scenarios", () => {
-  let baseUrl = "http://localhost:8080";
 
   beforeAll(() => {
     console.log("🔥 Starting smoke tests – quick sanity checks");
@@ -30,7 +44,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
   });
 
   it("search endpoint returns results for valid query", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/search?q=security`);
+    const response = await fetchWithAuth(`/api/v1/search?q=security`);
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toHaveProperty("total");
@@ -40,12 +54,12 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
   });
 
   it("activity stream connects (200 OK, SSE)", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/activity/stream`);
+    const response = await fetchWithAuth(`/api/v1/activity/stream`);
     expect(response.status).toBe(200);
     
     // Check for SSE headers
-    const contentType = response.headers.get("content-type");
-    expect(contentType).toMatch(/event-stream/);
+    const contentType = response.headers.get("content-type") || "";
+    expect(String(contentType)).toMatch(/event-stream/);
     
     console.log("✅ Activity stream: connected");
   });
@@ -55,7 +69,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
   // ============================================
 
   it("search returns documents with all required fields", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/search?q=test`);
+    const response = await fetchWithAuth(`/api/v1/search?q=test`);
     const body = await response.json();
     
     if (body.hits.length > 0) {
@@ -69,7 +83,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
   });
 
   it("search filtering by risk works", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/search?q=test&risk=critical`);
+    const response = await fetchWithAuth(`/api/v1/search?q=test&risk=critical`);
     expect(response.status).toBe(200);
     const body = await response.json();
     
@@ -80,7 +94,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
   });
 
   it("search pagination works (limit)", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/search?q=test&limit=2`);
+    const response = await fetchWithAuth(`/api/v1/search?q=test&limit=2`);
     const body = await response.json();
     expect(body.hits.length).toBeLessThanOrEqual(2);
     console.log(`✅ Pagination works`);
@@ -101,7 +115,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
     console.log("  1️⃣  Health check passed");
 
     // Step 2: Search for data
-    const searchResp = await fetch(`${baseUrl}/api/v1/search?q=security`);
+    const searchResp = await fetchWithAuth(`/api/v1/search?q=security`);
     expect(searchResp.status).toBe(200);
     const searchBody = await searchResp.json();
     expect(searchBody.hits).toBeDefined();
@@ -109,7 +123,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
     console.log(`  2️⃣  Search successful: ${searchBody.hits.length} results`);
 
     // Step 3: Connect to stream
-    const streamResp = await fetch(`${baseUrl}/api/v1/activity/stream`);
+    const streamResp = await fetchWithAuth(`/api/v1/activity/stream`);
     expect(streamResp.status).toBe(200);
     console.log("  3️⃣  Activity stream connected");
 
@@ -121,14 +135,14 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
   // ============================================
 
   it("error handling: missing required parameter returns 400", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/search`);
+    const response = await fetchWithAuth(`/api/v1/search`);
     expect(response.status).toBe(400);
     console.log("✅ Error handling works (400 on missing param)");
   });
 
   it("error handling: graceful degradation on bad input", async () => {
     // Should not crash, should return error
-    const response = await fetch(`${baseUrl}/api/v1/search?q=`);
+    const response = await fetchWithAuth(`/api/v1/search?q=`);
     expect([400, 404]).toContain(response.status);
     console.log("✅ Graceful error handling");
   });
@@ -147,7 +161,7 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
 
   it("search endpoint responds in acceptable time (<500ms)", async () => {
     const start = Date.now();
-    await fetch(`${baseUrl}/api/v1/search?q=test`);
+    await fetchWithAuth(`/api/v1/search?q=test`);
     const duration = Date.now() - start;
     expect(duration).toBeLessThan(500);
     console.log(`✅ Search performance: ${duration}ms`);

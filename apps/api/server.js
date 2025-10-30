@@ -1,3 +1,20 @@
+/**
+ * ⚠️  DEPRECATED - This file is kept for reference only
+ *
+ * The API server has been refactored to a modular architecture.
+ * New server location: src/server.js
+ *
+ * This monolithic version (525 LOC) has been replaced with:
+ * - src/server.js (main entry point)
+ * - src/services/* (business logic)
+ * - src/routes/* (endpoint handlers)
+ * - src/middleware/* (auth, rate limiting, error handling)
+ * - src/models/* (validation schemas)
+ * - src/utils/* (logger, config)
+ *
+ * See claudedocs/PHASE3_CODE_QUALITY_AUDIT.md for refactoring details.
+ */
+
 import Fastify from "fastify";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -58,6 +75,17 @@ async function authenticateRequest(request, reply) {
     return; // Skip auth for frontend assets
   }
 
+  const queryParams = (typeof request.query === 'object' && request.query !== null) ? request.query : {};
+  const extractFromQuery = (...keys) => {
+    for (const key of keys) {
+      const value = queryParams[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim();
+      }
+    }
+    return null;
+  };
+
   // Public API endpoints (no authentication required)
   const PUBLIC_API_ROUTES = [
     '/api/v1/health'
@@ -76,12 +104,20 @@ async function authenticateRequest(request, reply) {
     apiKey = request.headers["x-api-key"];
   }
 
+  if (!apiKey) {
+    apiKey = extractFromQuery('apiKey', 'api_key', 'apikey', 'key', 'X-API-Key', 'x-api-key');
+  }
+
   // Try JWT second (Authorization: Bearer header)
   if (request.headers.authorization) {
     const auth = request.headers.authorization;
     if (auth.startsWith("Bearer ")) {
       token = auth.substring(7);
     }
+  }
+
+  if (!token) {
+    token = extractFromQuery('token', 'jwt', 'access_token', 'bearer');
   }
 
   // Validate API Key
