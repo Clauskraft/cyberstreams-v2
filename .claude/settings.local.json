@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/claus/.claude/**)",
+      "Read(//c/Users/claus/AppData/Roaming/Claude/**)",
+      "Bash(npm search:*)",
+      "WebSearch",
+      "Bash(uvx:*)",
+      "Bash(uv --version:*)",
+      "mcp__serena__activate_project",
+      "mcp__serena__list_memories",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__list_dir",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(npm run test:smoke:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(timeout 10 node:*)",
+      "Bash(npm install)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill /PID 44760 /F)",
+      "Bash(taskkill:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(where:*)",
+      "Bash(gemini status:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

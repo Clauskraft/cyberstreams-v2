@@ -1,0 +1,28 @@
+# Design Kontrakt: Multi-Stage Dockerfile for Agent Ops Fastify Server
+
+# STAGE 1: BUILD (Fokus: Hurtig bygning og lille slutstørrelse)
+FROM node:20-alpine AS build
+WORKDIR /app
+# Kopier Manifests
+# Installer Dependencies
+# Kopier Kilder
+# RUN npm ci
+
+# ---
+
+# STAGE 2: RUNTIME (Fokus: Minimalitet og Sikkerhed)
+FROM node:20-slim AS runtime
+WORKDIR /app
+EXPOSE 8080
+
+# Kopier KUN det nødvendige fra Build Stage
+COPY --from=build /app /app
+
+# Sikkerhed: Kør som non-root bruger (Klasse og sikkerhed i ét)
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+USER appuser
+
+# Start kommando
+CMD ["npm", "start", "--workspace=packages/agent-ops"]
+
+

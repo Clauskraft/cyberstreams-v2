@@ -1,0 +1,130 @@
+{
+  "generated_at": "2025-10-29T12:00:00Z",
+  "run_id": "draft-e2e-20251029-001",
+  "status": "provisional",
+  "purpose": "Bootstrap inputs for deterministic end-to-end release rehearsal without production credentials.",
+  "assumptions": [
+    "All commands execute inside an isolated Kubernetes namespace with mocked integrations.",
+    "Railway-hosted endpoints are stubbed behind e2e-prefixed internal gateways.",
+    "Database components are currently mocked; migrations are represented as no-op checks pending real datastore wiring.",
+    "Synthetic API keys and users are scoped to test fixtures only and rotate every rehearsal run.",
+    "Container images are pushed to a temporary run-specific registry path and deleted during cleanup."
+  ],
+  "inputs": {
+    "REPO_URL": "https://github.com/clauskraft/cyberstreams-v2.git",
+    "BRANCH": "main",
+    "ENVIRONMENT_PREFIX": "e2e-draft-20251029",
+    "CONTAINER_REGISTRY": "ghcr.io/cyberstreams/e2e-draft",
+    "INFRA": {
+      "provider": "kubernetes",
+      "cluster": "cyberstreams-staging-eu",
+      "namespace": "e2e-draft-20251029",
+      "context": "cyberstreams-staging"
+    },
+    "HEALTH_URLS": [
+      "https://e2e-draft-api.cyberstreams.local/healthz",
+      "https://e2e-draft-api.cyberstreams.local/readyz"
+    ],
+    "BUSINESS_FLOWS": [
+      {
+        "id": "flow-console-auth-search",
+        "description": "Console admin obtains JWT via API key and executes authenticated search in UI.",
+        "entrypoint": "https://e2e-draft-console.cyberstreams.local",
+        "expected_outcome": "JWT token issued, search results rendered without auth errors, audit log entry present."
+      },
+      {
+        "id": "flow-api-direct-query",
+        "description": "Service account exchanges API key for JWT and performs signed search via REST API.",
+        "entrypoint": "https://e2e-draft-api.cyberstreams.local/api/v1/search",
+        "expected_outcome": "HTTP 200 with non-empty hits array or HTTP 404 (no results) but never 401/5xx; request logged in OpenSearch." 
+      }
+    ],
+    "TEST_USERS": [
+      {
+        "id": "svc-admin",
+        "email": "svc-admin+e2e@cyberstreams.dev",
+        "roles": ["admin"],
+        "api_key": "cs_test_admin_e2e_5c7f",
+        "fixtures": "data/fixtures/admin-user.json"
+      },
+      {
+        "id": "svc-analyst",
+        "email": "svc-analyst+e2e@cyberstreams.dev",
+        "roles": ["analyst"],
+        "api_key": "cs_test_user_e2e_9a1d",
+        "fixtures": "data/fixtures/analyst-user.json"
+      }
+    ],
+    "DB_MIGRATIONS_CMD": "echo \"[mock] no database migrations required for current build\"",
+    "BUILD_CMD": "npm run install:all && npm run build && npm run test:contract && npm run test:smoke && npm run test:integration",
+    "E2E_UI_CMD": "E2E_BASE_URL=https://e2e-draft-console.cyberstreams.local E2E_API_URL=https://e2e-draft-api.cyberstreams.local npx playwright test tests/e2e/railway-auth.spec.ts",
+    "API_CONTRACT": "packages/contracts/openapi.yaml",
+    "LOAD_TEST": "k6 run tests/load/smoke.js --vus 20 --duration 5m --tag environment=e2e-draft",
+    "OBSERVABILITY": {
+      "prometheus_url": "https://monitoring.cyberstreams.local/api/v1",
+      "log_query": "namespace=\"e2e-draft-20251029\" AND level>=ERROR",
+      "trace_query": "service.name='cyberstreams-api' AND resource.attributes['deployment.environment']='e2e-draft'"
+    },
+    "SECURITY_TOOLS": {
+      "image_scan": "trivy image ghcr.io/cyberstreams/e2e-draft:${IMAGE_TAG} --scanners vuln,config --severity HIGH,CRITICAL --exit-code 1",
+      "dependency_scan": "npm audit --production --audit-level=high",
+      "secret_scan": "gitleaks detect --redact --report-path security/gitleaks.json",
+      "dast_scan": "zap-baseline.py -t https://e2e-draft-api.cyberstreams.local -g security/zap.context -J security/zap.json"
+    },
+    "SLO_THRESHOLDS": {
+      "error_rate_pct": 0.5,
+      "p95_latency_ms": 300,
+      "availability_pct": 99.9
+    },
+    "CANARY": {
+      "baseline_release_id": "prod-20251015-rc2",
+      "canary_traffic_pct": 5,
+      "abort_ratio_limits": {
+        "p95": 1.2,
+        "error_rate": 1.5
+      }
+    },
+    "ROLLBACK_CMD": "echo \"[mock] rollback to prod-20251015-rc2 executed\"",
+    "REPORT_BUCKET_OR_PATH": "./reports/e2e-draft",
+    "ALERT_CHANNEL": "slack://cyberstreams-test-alerts",
+    "TIMEOUTS": {
+      "total_minutes": 60,
+      "step_minutes": 15
+    },
+    "BUDGET_LIMITS": {
+      "cloud_cost_max": 50,
+      "run_time_max_min": 90
+    },
+    "SECRETS": {
+      "vault_path": "vault://cyberstreams/e2e-draft",
+      "required_keys": [
+        "OPENSEARCH_URL",
+        "OPENSEARCH_USERNAME",
+        "OPENSEARCH_PASSWORD",
+        "MINIO_ACCESS_KEY",
+        "MINIO_SECRET_KEY",
+        "RAILWAY_TOKEN",
+        "JWT_SIGNING_SECRET"
+      ]
+    }
+  },
+  "supporting_commands": {
+    "container_build": "docker build -f Dockerfile -t ghcr.io/cyberstreams/e2e-draft:${IMAGE_TAG} .",
+    "sbom": "trivy sbom --format spdx-json --output security/SBOM.spdx.json ghcr.io/cyberstreams/e2e-draft:${IMAGE_TAG}",
+    "signature": "cosign sign --key cosign.key ghcr.io/cyberstreams/e2e-draft:${IMAGE_TAG}",
+    "namespace_bootstrap": "kubectl create namespace e2e-draft-20251029 || true",
+    "secrets_sync": "vault kv get -format=json vault://cyberstreams/e2e-draft > infra/secrets/e2e-draft-20251029.json"
+  },
+  "artifact_structure": {
+    "summary": "reports/e2e-draft/summary.json",
+    "junit": "reports/e2e-draft/junit.xml",
+    "coverage": "reports/e2e-draft/coverage/",
+    "e2e_artifacts": "reports/e2e-draft/e2e_artifacts/",
+    "load": "reports/e2e-draft/load/",
+    "security": "reports/e2e-draft/security/",
+    "observability": "reports/e2e-draft/observability/",
+    "infra": "reports/e2e-draft/infra/"
+  }
+}
+
+

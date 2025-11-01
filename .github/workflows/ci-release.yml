@@ -1,0 +1,47 @@
+name: CI & Release
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run lint/type-check
+        run: npm run lint
+      - name: Run tests
+        run: npm test
+      - name: Run contract coverage audit
+        run: npm run audit:contract
+      - name: Run scorecard audit
+        env:
+          OPENSEARCH_URL: ${{ secrets.OPENSEARCH_URL }}
+          OPENSEARCH_USERNAME: ${{ secrets.OPENSEARCH_USERNAME }}
+          OPENSEARCH_PASSWORD: ${{ secrets.OPENSEARCH_PASSWORD }}
+          API_BASE: ${{ secrets.API_BASE }}
+        run: npm run audit:score
+      - name: Build web app
+        run: npm run build
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Railway
+        run: |
+          npm i -g @railway/cli
+          railway login --apiKey ${{ secrets.RAILWAY_API_KEY }} --browserless
+          railway up --service cyberstreams-api --detach
+          railway up --service cyberstreams-worker --detach
+        env:
+          RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
+

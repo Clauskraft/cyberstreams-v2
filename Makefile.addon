@@ -1,0 +1,31 @@
+# --- Dark Web Secure Suite -----------------------------------------------
+DARKWEB_NAME := cyberstreams-darkweb
+DARKWEB_PATH := apps/darkweb-connector
+IDS ?=
+
+.PHONY: darkweb.validate darkweb.enable darkweb.deploy darkweb.verify darkweb.logs darkweb.secure
+
+darkweb.validate:
+	@node scripts/darkweb/validate-sources.mjs
+
+darkweb.enable:
+	@if [ -z "$(IDS)" ]; then echo "usage: make darkweb.enable IDS=id1,id2"; exit 2; fi
+	@IDS=$(IDS) node scripts/darkweb/toggle-sources.mjs
+
+darkweb.deploy:
+	@npm i -g @railway/cli >/dev/null
+	@railway up --service $(DARKWEB_NAME) --path $(DARKWEB_PATH) --detach
+
+darkweb.verify:
+	@bash apps/darkweb-connector/bin/leak-test.sh
+	@command -v jq >/dev/null || { echo "jq missing"; exit 2; }
+	@echo "Checking darkweb docs in last 24h..."
+	@curl -fsS -u "$$OPENSEARCH_USERNAME:$$OPENSEARCH_PASSWORD" \
+	  -H "content-type: application/json" \
+	  -X POST "$$OPENSEARCH_URL/cyber-docs/_search" \
+	  -d '{"query":{"bool":{"filter":[{"term":{"sourceType":"darkweb"}},{"range":{"timestamp":{"gte":"now-24h"}}}]}}, "size":0}' \
+	  | jq -r '.hits.total.value' \
+	  | awk '{ if ($$1>=1) {print "OK - documents:",$$1} else {print "ERR - none found"; exit 1} }'
+
+# One-shot secure flow
+darkweb.secure: darkweb.validate darkweb.enable darkweb.deploy darkweb.verify

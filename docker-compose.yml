@@ -1,0 +1,238 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Data Layer
+  # ============================================
+
+  opensearch:
+    privileged: true
+    image: opensearchproject/opensearch:2.14.0
+    container_name: opensearch
+    environment:
+      - cluster.name=opensearch-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - DISABLE_SECURITY_PLUGIN=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    networks:
+      - cyberstreams
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    privileged: true
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - cyberstreams
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neo4j:
+    privileged: true
+    image: neo4j:5.23-community
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/cyberstreams123
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_memory_heap_max__size=512M
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    networks:
+      - cyberstreams
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p cyberstreams123 'RETURN 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  postgres:
+    privileged: true
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=cyberstreams
+      - POSTGRES_USER=cyberstreams
+      - POSTGRES_PASSWORD=cyberstreams123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - cyberstreams
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyberstreams"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Application Services
+  # ============================================
+
+  api:
+    privileged: true
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: api
+    environment:
+      - PORT=8080
+      - OPENSEARCH_NODE=http://opensearch:9200
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://cyberstreams:cyberstreams123@postgres:5432/cyberstreams
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
+      - ML_SERVICE_URL=http://ml-service:8082
+    ports:
+      - "8080:8080"
+    depends_on:
+      opensearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - cyberstreams
+    restart: unless-stopped
+
+  worker:
+    privileged: true
+    build:
+      context: .
+      dockerfile: ./apps/worker/Dockerfile
+    container_name: worker
+    environment:
+      - OPENSEARCH_NODE=http://opensearch:9200
+      - WORKER_MODE=continuous
+      - FETCH_INTERVAL_MS=3600000
+      - REQUEST_TIMEOUT_MS=10000
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    networks:
+      - cyberstreams
+    restart: unless-stopped
+
+  ml-service:
+    privileged: true
+    build:
+      context: ./apps/ml-service
+      dockerfile: Dockerfile
+    container_name: ml-service
+    environment:
+      - ML_SERVICE_PORT=8082
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=cyberstreams123
+      - KNOWLEDGE_GRAPH_ENABLED=true
+      - REDIS_URL=redis://redis:6379
+      - MODEL_STORAGE_TYPE=local
+      - MODEL_STORAGE_PATH=/app/models
+      - LOG_LEVEL=info
+    ports:
+      - "8082:8082"
+    volumes:
+      - ml-models:/app/models
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cyberstreams
+    restart: unless-stopped
+
+  web:
+    privileged: true
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: web
+    environment:
+      - VITE_API_BASE=http://localhost:8080/api/v1
+    ports:
+      - "5173:4173"
+    networks:
+      - cyberstreams
+    restart: unless-stopped
+
+  # ============================================
+  # Observability Stack
+  # ============================================
+
+  prometheus:
+    privileged: true
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - cyberstreams
+    restart: unless-stopped
+
+  grafana:
+    privileged: true
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - cyberstreams
+    restart: unless-stopped
+
+networks:
+  cyberstreams:
+    driver: bridge
+
+volumes:
+  opensearch-data:
+  redis-data:
+  neo4j-data:
+  neo4j-logs:
+  postgres-data:
+  ml-models:
+  prometheus-data:
+  grafana-data:

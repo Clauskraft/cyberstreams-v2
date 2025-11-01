@@ -4,12 +4,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["tests/**/*.test.js"],
-    exclude: ["node_modules"],
-    reporter: ["verbose", "html"],
-    outputFile: {
-      html: "./coverage/test-report.html"
-    },
+    include: ["tests/**/*.test.{js,ts}"],
+    exclude: ["node_modules", "packages/osint-panel/**"],
+    reporter: ["verbose"],
+    outputFile: undefined,
     testTimeout: 10000,
     hookTimeout: 10000,
     // Coverage config

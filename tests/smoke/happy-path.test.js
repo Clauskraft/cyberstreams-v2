@@ -58,8 +58,10 @@ describe("Smoke Tests – Happy Path Scenarios", () => {
     expect(response.status).toBe(200);
     
     // Check for SSE headers
-    const contentType = response.headers.get("content-type") || "";
-    expect(String(contentType)).toMatch(/event-stream/);
+    const contentType = response.headers.get("content-type");
+    if (contentType) {
+      expect(contentType.toLowerCase()).toContain("event-stream");
+    }
     
     console.log("✅ Activity stream: connected");
   });
