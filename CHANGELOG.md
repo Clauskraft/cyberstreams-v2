@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Git Ignore**: Removed package-lock.json from ignore list for reproducible builds
 
 ### Fixed
+- **Security**: Removed hardcoded production API keys from E2E tests
 - Web console accessibility issues (select elements, textareas)
 - Docker monorepo build failures for workspace dependencies
 - Missing package-lock.json files preventing builds
