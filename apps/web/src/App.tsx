@@ -762,17 +762,45 @@ export function App() {
                       <strong>Last run:</strong> {agent.lastRun ? new Date(agent.lastRun).toLocaleString() : "—"}
                     </li>
                   </ul>
-                  {editingAgentId === agent.id ? (
-                    <div className="agent-editor">
-                      <textarea value={draftDescription} onChange={(e) => setDraftDescription(e.target.value)} rows={4} />
+                  {editingAgentId === agent.id && (
+                    <div className="agent-editor" data-test={`agent-editor-${agent.id}`}>
+                      <label
+                        htmlFor={`agent-description-${agent.id}`}
+                        className="visually-hidden"
+                      >
+                        Edit Description
+                      </label>
+                      <textarea
+                        id={`agent-description-${agent.id}`}
+                        value={draftDescription}
+                        onChange={(e) => setDraftDescription(e.target.value)}
+                        rows={4}
+                        placeholder="Edit agent description"
+                        data-test={`agent-description-input-${agent.id}`}
+                      />
                       <div className="agent-editor-actions">
-                        <button onClick={() => updateAgentDescription(agent.id, draftDescription.trim())}>Save</button>
-                        <button className="secondary" onClick={() => { setEditingAgentId(null); setDraftDescription(""); }}>
+                        <button
+                          type="button"
+                          data-test={`save-agent-description-${agent.id}`}
+                          onClick={() => updateAgentDescription(agent.id, draftDescription.trim())}
+                          disabled={draftDescription.trim() === agent.description.trim()}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="secondary"
+                          data-test={`cancel-agent-description-${agent.id}`}
+                          onClick={() => {
+                            setEditingAgentId(null);
+                            setDraftDescription("");
+                          }}
+                        >
                           Cancel
                         </button>
                       </div>
                     </div>
-                  ) : null}
+                  )}
                   <footer className="card-footer">
                     <div className="footer-actions">
                       <button onClick={() => toggleAgent(agent.id)}>{agent.enabled ? "Disable" : "Enable"}</button>
@@ -883,8 +911,8 @@ export function App() {
           />
         </div>
         <div>
-          <label>JWT Token</label>
-          <textarea data-test="jwt-textarea" value={jwt} onChange={(e) => setJwt(e.target.value)} rows={2} />
+          <label htmlFor="jwt-token">JWT Token</label>
+          <textarea id="jwt-token" data-test="jwt-textarea" value={jwt} onChange={(e) => setJwt(e.target.value)} rows={2} />
         </div>
         <button data-test="get-jwt-button" onClick={handleGetJwt}>
           Get JWT (requires API key)
@@ -902,7 +930,7 @@ export function App() {
             disabled={!apiKey && !jwt}
           />
           {!apiKey && !jwt && <p className="text-xs text-red-500">Indtast API Key eller JWT for at søge</p>}
-          <select value={source} onChange={(e) => setSource(e.target.value)}>
+          <select aria-label="Source" value={source} onChange={(e) => setSource(e.target.value)}>
             <option value="all">All Sources</option>
             <option value="ars-technica">Ars Technica</option>
             <option value="hacker-news">Hacker News</option>
@@ -911,7 +939,7 @@ export function App() {
             <option value="globaleaks">GlobaLeaks</option>
             <option value="styx-market">STYX Market</option>
           </select>
-          <select value={risk} onChange={(e) => setRisk(e.target.value)}>
+          <select aria-label="Risk Level" value={risk} onChange={(e) => setRisk(e.target.value)}>
             <option value="all">All Risk Levels</option>
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -967,5 +995,4 @@ export function App() {
     </div>
   );
 }
-
 

@@ -1,0 +1,6 @@
+- [x] Document web console usage and update README/BUILD_STATUS with frontend info
+- [ ] Integrere OpenSearch produktionscluster (erstat mock index)
+- [ ] Implementere PII-detektion og redaktion i worker/API
+- [ ] Udvide Test Agent med automatiske auth/rate-limit tests + coverage gate
+- [ ] Overvåge Railway logs og leak-tests efter hver deploy
+- [ ] Koordinere med CI/Release Agent om næste release (0.2.0)

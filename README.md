@@ -1,6 +1,6 @@
 # Cyberstreams V2
 
-[![Status: MVP](https://img.shields.io/badge/status-MVP-blue)](#) [![Node.js 20+](https://img.shields.io/badge/node-20+-brightgreen)](#) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#)
+[![Status: Production](https://img.shields.io/badge/status-Production-green)](#) [![Version: 0.2.0](https://img.shields.io/badge/version-0.2.0-blue)](#) [![Node.js 20+](https://img.shields.io/badge/node-20+-brightgreen)](#) [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#)
 
 Open-source cybersecurity intelligence platform combining RSS feeds, dark web monitoring, and multi-source data aggregation into a unified search interface.
 

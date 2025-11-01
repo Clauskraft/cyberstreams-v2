@@ -1,6 +1,6 @@
 {
   "name": "cyberstreams-v2",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cyberstreams V2 – Open-source cybersecurity intelligence platform with RSS feeds, dark web monitoring, and multi-source aggregation",
   "type": "module",
   "main": "index.js",
@@ -28,7 +28,10 @@
   "workspaces": [
     "apps/api",
     "apps/worker",
-    "apps/web"
+    "apps/web",
+    "apps/ml-service",
+    "packages/agent-ops",
+    "packages/osint-panel"
   ],
   "keywords": [
     "cybersecurity",
@@ -45,8 +48,15 @@
     "url": "https://github.com/yourusername/cyberstreams-v2.git"
   },
   "devDependencies": {
-    "vitest": "^1.0.4",
+    "@playwright/test": "^1.56.1",
     "@vitest/coverage-v8": "^1.0.4",
+    "@vitest/ui": "^1.6.1",
+    "playwright": "^1.56.1",
+    "vitest": "^1.0.4",
     "yaml": "^2.4.2"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "node-fetch": "^3.3.2"
   }
 }

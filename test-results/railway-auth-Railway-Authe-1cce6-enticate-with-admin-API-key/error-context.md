@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: High-Performance Object Store
+      - generic [ref=e9]:
+        - text: MinIO is a cloud-native object store built to run on any infrastructure - public, private or edge clouds. Primary use cases include data lakes, databases, AI/ML, SaaS applications and fast backup & recovery. MinIO is dual licensed under GNU AGPL v3 and commercial license. To learn more, visit
+        - link "www.min.io" [ref=e10] [cursor=pointer]:
+          - /url: https://min.io/?ref=con
+        - text: .
+    - img [ref=e12]
+  - generic [ref=e14]:
+    - img [ref=e16]
+    - generic [ref=e35]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e41]:
+            - img [ref=e43]
+            - textbox "Username" [ref=e47]
+          - generic [ref=e50]:
+            - img [ref=e52]
+            - textbox "Password" [ref=e54]
+            - button [ref=e56] [cursor=pointer]:
+              - img [ref=e57]
+        - button "Login" [disabled] [ref=e60]:
+          - generic [ref=e61]: Login
+        - generic [ref=e66]:
+          - generic [ref=e68]: Other Authentication Methods
+          - img [ref=e70]
+      - generic [ref=e77]:
+        - link "Documentation" [ref=e78] [cursor=pointer]:
+          - /url: https://min.io/docs/minio/linux/index.html?ref=con
+        - text: "|"
+        - link "GitHub" [ref=e79] [cursor=pointer]:
+          - /url: https://github.com/minio/minio
+        - text: "|"
+        - link "Support" [ref=e80] [cursor=pointer]:
+          - /url: https://subnet.min.io/?ref=con
+        - text: "|"
+        - link "Download" [ref=e81] [cursor=pointer]:
+          - /url: https://min.io/download/?ref=con
+```
