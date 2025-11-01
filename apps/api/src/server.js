@@ -14,6 +14,7 @@ import jwt from 'jsonwebtoken';
 import RedisService from './services/redisService.js';
 import ApiKeyStore from './services/apiKeyStore.js';
 import SearchService from './services/searchService.js';
+import OpenSearchService from './services/opensearchService.js';
 
 // Middleware
 import { registerErrorHandler, asyncHandler, AppError } from './middleware/errorHandler.js';
@@ -24,6 +25,7 @@ import { checkRateLimit } from './middleware/rateLimit.js';
 import { healthRoutes } from './routes/health.js';
 import { searchRoutes } from './routes/search.js';
 import { streamRoutes } from './routes/stream.js';
+import { threatActorRoutes } from './routes/threat-actor.js';
 
 // Utils
 import logger from './utils/logger.js';
@@ -53,10 +55,15 @@ async function initializeServices(logger) {
   // Initialize search service
   const searchService = new SearchService({ logger });
 
+  // Initialize OpenSearch service
+  const opensearchService = new OpenSearchService({ logger });
+  await opensearchService.connect();
+
   return {
     redisService,
     apiKeyStore,
-    searchService
+    searchService,
+    opensearchService
   };
 }
 
@@ -139,12 +146,17 @@ async function registerMiddleware(app, services) {
  * Register routes
  */
 async function registerRoutes(app, services) {
-  const { logger, redisService, searchService, apiKeyStore } = services;
+  const { logger, redisService, searchService, apiKeyStore, opensearchService } = services;
 
   // API routes
   await healthRoutes(app, { logger, redisService });
   await searchRoutes(app, { logger, searchService, redisService });
   await streamRoutes(app, { logger, redisService });
+  
+  // CRUD routes
+  if (opensearchService && opensearchService.isAvailable()) {
+    await threatActorRoutes(app, { logger, opensearchService });
+  }
 
   // Token exchange endpoint
   app.post('/api/v1/auth/token', {

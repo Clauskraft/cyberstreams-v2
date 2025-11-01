@@ -1,0 +1,164 @@
+#
+# OpenAPI additions for ThreatActor
+# Copy these into packages/contracts/openapi.yaml
+#
+
+paths:
+  /threat-actors:
+    get:
+      tags: ['ThreatActor']
+      summary: List all ThreatActors
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: A list of ThreatActors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatActorList'
+    
+    post:
+      tags: ['ThreatActor']
+      summary: Create a new ThreatActor
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatActorCreate'
+      responses:
+        '201':
+          description: ThreatActor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatActor'
+
+  /threat-actors/{id}:
+    get:
+      tags: ['ThreatActor']
+      summary: Get a single ThreatActor by ID
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: cuid
+      responses:
+        '200':
+          description: A single ThreatActor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatActor'
+        '404':
+          description: ThreatActor not found
+    
+    put:
+      tags: ['ThreatActor']
+      summary: Update a ThreatActor
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: cuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatActorUpdate'
+      responses:
+        '200':
+          description: ThreatActor updated successfully
+        '404':
+          description: ThreatActor not found
+    
+    delete:
+      tags: ['ThreatActor']
+      summary: Delete a ThreatActor
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: cuid
+      responses:
+        '204':
+          description: ThreatActor deleted successfully
+        '404':
+          description: ThreatActor not found
+
+components:
+  schemas:
+    ThreatActor:
+      type: object
+      required:
+        - id
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: cuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        risk:
+          type: number
+        aliases:
+          type: array
+        ttps:
+          type: array
+        firstSeen:
+          type: string
+
+    ThreatActorList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ThreatActor'
+    
+    ThreatActorCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        risk:
+          type: number
+        aliases:
+          type: array
+        ttps:
+          type: array
+        firstSeen:
+          type: string
+    
+    ThreatActorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        risk:
+          type: number
+        aliases:
+          type: array
+        ttps:
+          type: array
+        firstSeen:
+          type: string

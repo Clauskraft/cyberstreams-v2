@@ -177,3 +177,13 @@ export function validateBody(schema) {
     }
   };
 }
+
+export function validateParams(schema) {
+  return async (request, reply) => {
+    try {
+      request.params = validate(schema, request.params);
+    } catch (error) {
+      return reply.code(error.statusCode || 400).send(error);
+    }
+  };
+}

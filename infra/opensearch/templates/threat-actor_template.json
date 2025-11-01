@@ -1,0 +1,44 @@
+{
+  "index_patterns": [
+    "threat-actors-*"
+  ],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1,
+      "index.lifecycle.name": "90-day-retention-policy",
+      "index.lifecycle.rollover_alias": "threat-actors"
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true
+      },
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "createdAt": {
+          "type": "date"
+        },
+        "updatedAt": {
+          "type": "date"
+        },
+        "name": {
+          "type": "keyword"
+        },
+        "risk": {
+          "type": "integer"
+        },
+        "aliases": {
+          "type": "keyword"
+        },
+        "ttps": {
+          "type": "keyword"
+        },
+        "firstSeen": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
