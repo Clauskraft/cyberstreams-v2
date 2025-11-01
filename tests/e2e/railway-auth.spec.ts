@@ -1,17 +1,33 @@
 import { test, expect } from "@playwright/test";
 
-// Railway production credentials
-const RAILWAY_API_URL = process.env.E2E_API_URL || "https://api-production-a9b1.up.railway.app";
-const RAILWAY_CONSOLE_URL = process.env.E2E_BASE_URL || "https://console-production-95f47.up.railway.app";
-const USER_API_KEY = process.env.E2E_USER_API_KEY || "cs_IfMyAE5ELGq8rqH0voMdvMMz1lUAmBlilj7beghT2nY";
-const ADMIN_API_KEY = process.env.E2E_ADMIN_API_KEY || "cs_WA7jaifkv_tiszls6IRIrWr907r97RFlNVIWvFcecH8";
-
 /**
  * Railway Authentication E2E Tests
  *
  * Tests authentication against Railway-deployed API with environment-based keys.
  * Verifies that the web console can authenticate successfully without 401 errors.
+ *
+ * Required environment variables:
+ * - E2E_API_URL: API base URL (e.g., https://api-production-a9b1.up.railway.app)
+ * - E2E_BASE_URL: Web console URL (e.g., https://console-production-95f47.up.railway.app)
+ * - E2E_USER_API_KEY: User role API key for testing
+ * - E2E_ADMIN_API_KEY: Admin role API key for testing
+ *
+ * NEVER commit API keys to version control!
  */
+
+// Load from environment variables only - no fallback credentials
+const RAILWAY_API_URL = process.env.E2E_API_URL;
+const RAILWAY_CONSOLE_URL = process.env.E2E_BASE_URL;
+const USER_API_KEY = process.env.E2E_USER_API_KEY;
+const ADMIN_API_KEY = process.env.E2E_ADMIN_API_KEY;
+
+// Validate required environment variables
+if (!RAILWAY_API_URL || !RAILWAY_CONSOLE_URL || !USER_API_KEY || !ADMIN_API_KEY) {
+  throw new Error(
+    "Missing required environment variables for E2E tests. " +
+    "Please set E2E_API_URL, E2E_BASE_URL, E2E_USER_API_KEY, and E2E_ADMIN_API_KEY"
+  );
+}
 
 test.describe("Railway Authentication", () => {
   test.beforeEach(async ({ page }) => {

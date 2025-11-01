@@ -29,13 +29,16 @@ export E2E_ADMIN_KEY=your_local_admin_key
 ```
 
 #### Railway Testing
-Create `.env.e2e` file (already created):
+Create `.env.e2e` file in project root:
 ```bash
-E2E_BASE_URL=https://console-production-95f47.up.railway.app
-E2E_API_URL=https://api-production-a9b1.up.railway.app
-E2E_ADMIN_API_KEY=cs_WA7jaifkv_tiszls6IRIrWr907r97RFlNVIWvFcecH8
-E2E_USER_API_KEY=cs_IfMyAE5ELGq8rqH0voMdvMMz1lUAmBlilj7beghT2nY
+# NEVER commit this file with real credentials!
+E2E_BASE_URL=https://your-console-url.up.railway.app
+E2E_API_URL=https://your-api-url.up.railway.app
+E2E_ADMIN_API_KEY=your_admin_api_key_here
+E2E_USER_API_KEY=your_user_api_key_here
 ```
+
+**IMPORTANT**: Generate test API keys from your Railway deployment. Never commit production credentials to version control.
 
 ## Running Tests
 
